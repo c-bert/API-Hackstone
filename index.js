@@ -1,27 +1,27 @@
 
 const INTERNATIONAL_SEARCH_URL = 'NONE';
-const NATIONAL_SEARCH_URL = `https://newsapi.org/v2/everything?country=us&apiKey=${apiNationalKey}`;
+const NATIONAL_SEARCH_URL = `https://newsapi.org/v2/everything?apiKey=${apiNationalKey}`;
 const LOCAL_SEARCH_URL = 'NONE';
 
 // STEP 1A - get international input request from the user--------------
-function watchInternationalSubmit() {
-  alert (`International Submit: watchInternationalSubmit`);
-  $('.international-news-search').submit(event => {
-    event.preventDefault();
-  alert (`watchInternationalSubmit`);  
-    //query is listening for the form that was being submitted
-    //const to listen for text input (getter)
-    const query = $(`#international-search-box`).val();
-    alert (`query ` + query);
-    // clear out the input (setter)
-    $(`#international-search-box`).val("");
-    getInternationalDataFromApi(query, displayInternationalSearchData);
-  });
-}
+// function watchInternationalSubmit() {
+//   alert (`International Submit: watchInternationalSubmit`);
+//   $('.international-news-search').submit(event => {
+//     event.preventDefault();
+//   alert (`watchInternationalSubmit`);  
+//     //query is listening for the form that was being submitted
+//     //const to listen for text input (getter)
+//     const query = $(`#international-search-box`).val();
+//     alert (`query ` + query);
+//     // clear out the input (setter)
+//     $(`#international-search-box`).val("");
+//     getInternationalDataFromApi(query, displayInternationalSearchData);
+//   });
+// }
 
 // STEP 1B - get national input request from the user----------------
 function watchNationalSubmit() {
-  alert (`National Submit: watchNationalSubmit`);
+  // alert (`National Submit: watchNationalSubmit`);
     $('.national-news-search').submit(event => {
       event.preventDefault();
       //query is listening for the form that was being submitted
@@ -34,18 +34,18 @@ function watchNationalSubmit() {
   }
 
 // STEP 1C - get regional input request from the user----------------
-function watchLocalSubmit() {
-  alert (`Local Submit: watchLocalSubmit`);
-    $('.local-news-search').submit(event => {
-      event.preventDefault();
-      //query is listening for the form that was being submitted
-      //const to listen for text input (getter)
-      const query = $(`local-search-box`).val();
-      // clear out the input (setter)
-      $(`local-search-box`).val("");
-      getLocalDataFromApi(query, displayLocalSearchData);
-    });
-  }
+// function watchLocalSubmit() {
+//   alert (`Local Submit: watchLocalSubmit`);
+//     $('.local-news-search').submit(event => {
+//       event.preventDefault();
+//       //query is listening for the form that was being submitted
+//       //const to listen for text input (getter)
+//       const query = $(`local-search-box`).val();
+//       // clear out the input (setter)
+//       $(`local-search-box`).val("");
+//       getLocalDataFromApi(query, displayLocalSearchData);
+//     });
+//   }
   
 // STEP 2A - using the input from the user (query) make the API call to get the JSON response
 //callback is like chaining two functions together
@@ -58,11 +58,12 @@ function watchLocalSubmit() {
 // STEP 2B - using the input from the user (query) make the API call to get the JSON response
 //callback is like chaining two functions together
 function getNationalDataFromApi(searchTerm, callback) {
-  $.getJSON(NATIONAL_SEARCH_URL, function(data) {
-    console.log('It is done!', data)
-    q: `{searchTerm}`,
+  const query = {
+    q: searchTerm
+  }
+  $.getJSON(NATIONAL_SEARCH_URL, query, function(data) {
+    console.log('It is done!', data);
     
-
   });
 }
 
@@ -180,7 +181,7 @@ function displayNationalSearchData(data, videosArray) {
     console.log(data);
   const results = data.items.map((item, index) => renderResult(item));
   $('#js-search-results').html(results);
-
+}
 //     //create an empty variable to store one LI for each one the results
 //     let buildHtmlOutput = "";
 
