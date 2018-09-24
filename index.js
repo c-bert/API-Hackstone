@@ -1,23 +1,21 @@
 
-const INTERNATIONAL_SEARCH_URL = 'NONE';
-const NATIONAL_SEARCH_URL = `https://newsapi.org/v2/everything?apiKey=${apiNationalKey}`;
+const INTERNATIONAL_SEARCH_URL = `http://api.npr.org/query?id=1004&apiKey=${apiInternationalKey}`;
+const NATIONAL_SEARCH_URL = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${apiNationalKey}`;
 const LOCAL_SEARCH_URL = 'NONE';
 
 // STEP 1A - get international input request from the user--------------
-// function watchInternationalSubmit() {
-//   alert (`International Submit: watchInternationalSubmit`);
-//   $('.international-news-search').submit(event => {
-//     event.preventDefault();
-//   alert (`watchInternationalSubmit`);  
-//     //query is listening for the form that was being submitted
-//     //const to listen for text input (getter)
-//     const query = $(`#international-search-box`).val();
-//     alert (`query ` + query);
-//     // clear out the input (setter)
-//     $(`#international-search-box`).val("");
-//     getInternationalDataFromApi(query, displayInternationalSearchData);
-//   });
-// }
+function watchInternationalSubmit() {
+  // alert (`International Submit: watchInternationalSubmit`);
+  $('.international-news-search').submit(event => {
+    event.preventDefault();
+  //query is listening for the form that was being submitted
+  //const to listen for text input (getter)
+  const query = $('#international-search-box').val();
+  // clear out the input (setter)
+  $('#international-search-box').val("");
+  getInternationalDataFromApi(query, displayInternationalSearchData);
+});
+};
 
 // STEP 1B - get national input request from the user----------------
 function watchNationalSubmit() {
@@ -26,102 +24,113 @@ function watchNationalSubmit() {
       event.preventDefault();
       //query is listening for the form that was being submitted
       //const to listen for text input (getter)
-      const query = $(`national-search-box`).val();
+      const query = $('#national-search-box').val();
       // clear out the input (setter)
-      $(`national-search-box`).val("");
+      $('#national-search-box').val("");
       getNationalDataFromApi(query, displayNationalSearchData);
     });
   }
 
 // STEP 1C - get regional input request from the user----------------
-// function watchLocalSubmit() {
+function watchLocalSubmit() {
 //   alert (`Local Submit: watchLocalSubmit`);
-//     $('.local-news-search').submit(event => {
-//       event.preventDefault();
-//       //query is listening for the form that was being submitted
-//       //const to listen for text input (getter)
-//       const query = $(`local-search-box`).val();
-//       // clear out the input (setter)
-//       $(`local-search-box`).val("");
-//       getLocalDataFromApi(query, displayLocalSearchData);
-//     });
-//   }
+$('.local-news-search').submit(event => {
+  event.preventDefault();
+  //query is listening for the form that was being submitted
+  //const to listen for text input (getter)
+  const query = $('#local-search-box').val();
+  // clear out the input (setter)
+  $('#local-search-box').val("");
+  getLocalDataFromApi(query, displayLocalSearchData);
+});
+}
   
 // STEP 2A - using the input from the user (query) make the API call to get the JSON response
 //callback is like chaining two functions together
-// function getInternationalDataFromApi(searchTerm, callback) {
-//   $.getJSON(url, function($(searchTerm)) {
-//     console.log('It is done!', data)
-//   });
-// }
+function getInternationalDataFromApi(searchTerm, callback) {
+  const query = {
+    q: searchTerm,
+    sortBy: `publishedAt.relevancy`,
+    country: `gb`    
+  }
+  $.getJSON(INTERNATIONAL_SEARCH_URL, query, function(data) {
+    console.log('It is done!', data, query);
+    
+  });
+}
 
 // STEP 2B - using the input from the user (query) make the API call to get the JSON response
 //callback is like chaining two functions together
 function getNationalDataFromApi(searchTerm, callback) {
   const query = {
-    q: searchTerm
+    q: searchTerm,
+    sortBy: `publishedAt.relevancy`,
   }
   $.getJSON(NATIONAL_SEARCH_URL, query, function(data) {
-    console.log('It is done!', data);
+    console.log('National News is done!', data, query);
     
   });
 }
 
-//  function receiveResults(receivedApiData) {s
-//   //show the json array received from the API call
-//   console.log(receivedApiData);
+// STEP 2C - using the input from the user (query) make the API call to get the JSON response
+//callback is like chaining two functions together
+function getDataFromApi(searchTerm, callback) {
+    const query = {
+      part: 'snippet',
+      thumbnails: 'set',
+      key: 'AIzaSyAx86qDk_oN4DUMo-zb19PKLDrUTZK-W40',
+      q: `${searchTerm} in:name`,
+      maxResults: 6,
+      type: 'video'
+    }
+    $.getJSON(LOCAL_SEARCH_URL, query, callback);
+  }
+
+//use Geo Location to get local news API  
+  function geoFindNationalSource() {
+    var output = document.getElementById("out");
+  
+    if (!navigator.geolocation){
+      output.innerHTML = "<p>Geolocation is not supported by your browser</p>";
+      return;
+    }
+  
+    function success(position) {
+      var latitude  = position.coords.latitude;
+      var longitude = position.coords.longitude;
+  
+      output.innerHTML = '<p>Latitude is ' + latitude + '° <br>Longitude is ' + longitude + '°</p>';
+  
+      var img = new Image();
+      img.src = "https://maps.googleapis.com/maps/api/staticmap?center=" + latitude + "," + longitude + "&zoom=13&size=300x300&sensor=false";
+  
+      output.appendChild(img);
+    }
+  
+    function error() {
+      output.innerHTML = "Unable to retrieve your location";
+    }
+    output.innerHTML = "<p>Locating…</p>";
+
+    navigator.geolocation.getCurrentPosition(success, error);
+  }  
+
+
+
+function receiveResults(receivedApiData) {
+  //show the json array received from the API call
+  console.log(receivedApiData);
   // if there are no results it will show an error
-  // if (receivedApiData.pageInfo.totalResults == 0) {
-  //   alert("Sorry, your search did not yield results!");
-                // }
-  //if there are results, call the displaySearchResults
-//     else {
-//       displaySearchResults(receivedApiData.items);
-//                 }
-//  };
+  if (receivedApiData.status.totalResults == 0) {
+    alert("Sorry, your search did not yield results!");
+                }
+  // if there are results, call the displaySearchResults
+    else {
+      displaySearchResults(receivedApiData.articles);
+                }
+ };
 
-//   // 
-//    function receiveResults(receivedApiData) {
-//     //show the json array received from the API call
-//     console.log(receivedApiData);
-//     // if there are no results it will show an error
-//     if (receivedApiData.pageInfo.totalResults == 0) {
-//       alert("Sorry, your search did not yield results!");
-//                   }
-//     //if there are results, call the displaySearchResults
-//       else {
-//         displaySearchResults(receivedApiData.items);
-//                   }
-// };
-
-// // STEP 2C - using the input from the user (query) make the API call to get the JSON response
-// //callback is like chaining two functions together
-// function getDataFromApi(searchTerm, callback) {
-//     const query = {
-//       part: 'snippet',
-//       thumbnails: 'set',
-//       key: 'AIzaSyAx86qDk_oN4DUMo-zb19PKLDrUTZK-W40',
-//       q: `${searchTerm} in:name`,
-//       maxResults: 6,
-//       type: 'video'
-//     }
-//     $.getJSON(LOCAL_SEARCH_URL, query, callback);
-//   }
-//   // 
-//    function receiveResults(receivedApiData) {
-//     //show the json array received from the API call
-//     console.log(receivedApiData);
-//     // if there are no results it will show an error
-//     if (receivedApiData.pageInfo.totalResults == 0) {
-//       alert("Sorry, your search did not yield results!");
-//                   }
-//     //if there are results, call the displaySearchResults
-//       else {
-//         displaySearchResults(receivedApiData.items);
-//                   }
-// };
-
-// // STEP 3A - using the JSON response, populate the relevant part of your HTML with the variable inside the JSON
+// STEP 3A - using the JSON response, populate the relevant part of your HTML with the variable inside the JSON
 // function renderInternationalResult(result) {
 //  console.log('result=' + result);
 //   return `
@@ -132,14 +141,16 @@ function getNationalDataFromApi(searchTerm, callback) {
 // }
 
 // // STEP 3B - using the JSON response, populate the relevant part of your HTML with the variable inside the JSON
-// function renderNationalResult(result) {
-//     console.log('result=' + result);
-//      return `
-//          <div class="col-4 national">
-//            <div class="national-results"> <a href="https://www.youtube.com/watch?v=${result.id.videoId}"> <img src=${result.snippet.thumbnails.medium.url} alt=${result.snippet.title}/></a><h5>${result.snippet.title}</h5></div>
-//          </div>
-//      `;
-//    }
+function renderNationalResult(result) {
+    console.log('result=' + result);
+     return `
+         <div class="col-4 national">
+           <div class="national-results"> <a href="https://newsapi.org/v2/top-headlines?country=us${result.articles}"></a><h5>${result.articles.title}</h5>
+           <h6>${result.articles.author}</h6>
+           <p>${result.articles.description.content}</p></div>
+         </div>
+     `;
+   }
 
 // // STEP 3C - using the JSON response, populate the relevant part of your HTML with the variable inside the JSON
 // function renderLocalResult(result) {
@@ -152,36 +163,38 @@ function getNationalDataFromApi(searchTerm, callback) {
 // }
 
 // //STEP 4A -- take the data received and display it in the desired HTML format
-// function displayInternationalSearchData(data, videosArray) {
-//     //as soon as you receive some data, try console logging it before you run instructions
-//     console.log(data);
-//   const results = data.items.map((item, index) => renderResult(item));
-//   $('#js-search-results').html(results);
-
-//     //create an empty variable to store one LI for each one the results
-//     let buildHtmlOutput = "";
-
-//     $.each(videosArray, function (videosArrayKey, videosArrayValue) {
-//         //create and populate one LI for each of the results ( "+=" means concatenate to the previous one)
-//         buildHtmlOutput += "<li>";
-//         buildHtmlOutput += "<p>" + videosArrayValue.snippet.title + "</p>"; //output vide title
-//         buildHtmlOutput += "<a href='https://www.youtube.com/watch?v=" + videosArrayValue.id.videoId + "' target='_blank'>"; //taget blank is going to open the video in a new window
-//         buildHtmlOutput += "<img src='" + videosArrayValue.snippet.thumbnails.high.url + "'/>"; //display video's thumbnail
-//         buildHtmlOutput += "</a>";
-//         buildHtmlOutput += "</li>";
-//     });
-
-//     //use the HTML output to show it in the index.html
-//     $("#js-search-results ul").html(buildHtmlOutput);
-// }
-
-// //STEP 4B -- take the data received and display it in the desired HTML format
-function displayNationalSearchData(data, videosArray) {
+function displayInternationalSearchData(data, videosArray) {
     //as soon as you receive some data, try console logging it before you run instructions
     console.log(data);
-  const results = data.items.map((item, index) => renderResult(item));
+  const results = data.article.map((article, index) => renderResult(article));
   $('#js-search-results').html(results);
 }
+
+// //STEP 4B -- take the data received and display it in the desired HTML format
+function displayNationalSearchData(data, articlesArray) {
+  //as soon as you receive some data, try console logging it before you run instructions
+  console.log(data);
+const results = data.article.map((article, index) => renderResult(article));
+$('#js-search-results').html(results);
+    // create an empty variable to store one LI for each one the results
+    let buildHtmlOutput = "";
+
+    $.each(articlesArray, function (articlesArrayKey, articlesArrayValue) {
+        //create and populate one LI for each of the results ( "+=" means concatenate to the previous one)
+        buildHtmlOutput += "<li>";
+        //output article title
+        buildHtmlOutput += "<h2>" + articlesArrayValue.articles.title + "</h2>";
+        buildHtmlOutput += "<h3>" + articlesArrayValue.articles.author + "</h3>";
+        buildHtmlOutput += "<p>" + articlesArrayValue.description.content + "</p>";
+        buildHtmlOutput += "<a href='https://newsapi.org/v2/top-headlines?" + videosArrayValue.url + "' target='_blank'>"; //taget blank is going to open the video in a new window
+        buildHtmlOutput += "</a>";
+        buildHtmlOutput += "</li>";
+    });
+
+    //use the HTML output to show it in the index.html
+    $("#js-search-results ul").html(buildHtmlOutput);
+}
+
 //     //create an empty variable to store one LI for each one the results
 //     let buildHtmlOutput = "";
 
@@ -243,7 +256,7 @@ function displayNationalSearchData(data, videosArray) {
 //     window.addEventListener("click", windowOnClick);
 
  function init () {
-  // watchInternationalSubmit();
+  watchInternationalSubmit();
   watchNationalSubmit();
   // watchLocalSubmit();
  }
